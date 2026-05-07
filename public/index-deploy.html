@@ -3,31 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>マルチアーキテクチャOS仮想環境エンジン</title>
+  <title>V86 マルチアーキテクチャOS仮想環境</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main>
     <header>
-      <h1>🖥️ マルチアーキテクチャOS仮想環境エンジン</h1>
-      <p>x86/x86-64/x32/ARM64対応 - ブラウザ上でOSを実行</p>
+      <h1>🖥️ V86 OS仮想環境エンジン</h1>
+      <p>ブラウザ上でLinuxやOSを実行 - x86/x86-64/ARM64対応</p>
     </header>
 
     <section class="panel">
-      <h2>📁 ISO ファイル管理</h2>
-      <div class="control-row">
-        <label for="iso-upload">ISOファイルをアップロード:</label>
-        <input id="iso-upload" type="file" accept=".iso" />
-        <button id="upload-btn">アップロード</button>
-        <span id="upload-status"></span>
-      </div>
-      <div id="upload-progress" class="progress" style="display: none;">
-        <div id="upload-progress-bar" class="progress-bar"></div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>⚙️ 仮想環境設定</h2>
+      <h2>⚙️ 仮想環境の起動</h2>
       <div class="control-row">
         <label for="os-select">起動するOS</label>
         <select id="os-select">
@@ -68,9 +55,9 @@
         </select>
       </div>
       <div class="control-row buttons">
-        <button id="start">起動</button>
-        <button id="reset" disabled>リセット</button>
-        <button id="stop" disabled>停止</button>
+        <button id="start">▶ 起動</button>
+        <button id="reset" disabled>🔄 リセット</button>
+        <button id="stop" disabled>⏹ 停止</button>
       </div>
       <div class="status" id="status">準備完了</div>
     </section>
@@ -85,6 +72,6 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/v86@latest/dist/v86.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="app-deploy.js"></script>
 </body>
 </html>
