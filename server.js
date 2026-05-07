@@ -1,0 +1,14 @@
+const express = require("express");
+const path = require("path");
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(express.static(path.join(__dirname, "docs")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "docs/index.html"));
+});
+
+app.listen(port, () => {
+  console.log(`v86-64 web engine running at http://localhost:${port}`);
+});

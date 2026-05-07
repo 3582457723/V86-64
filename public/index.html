@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>v86-64 Web Virtual Environment</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>v86-64 Web Virtual Environment</h1>
+      <p>アップロードされたISOからx86-64仮想環境を構築し、ブラウザ上で実行します。</p>
+    </header>
+
+    <section class="panel">
+      <div class="control-row">
+        <label for="iso-file">ISO イメージを選択</label>
+        <input id="iso-file" type="file" accept=".iso" />
+      </div>
+      <div class="control-row">
+        <label for="memory-size">メモリサイズ</label>
+        <select id="memory-size">
+          <option value="128">128 MB</option>
+          <option value="256">256 MB</option>
+          <option value="512" selected>512 MB</option>
+          <option value="1024">1024 MB</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <label for="x64-mode">x86-64 モード</label>
+        <input id="x64-mode" type="checkbox" checked />
+      </div>
+      <div class="control-row buttons">
+        <button id="start">起動</button>
+        <button id="reset" disabled>リセット</button>
+        <button id="stop" disabled>停止</button>
+      </div>
+      <div class="status" id="status">準備完了</div>
+    </section>
+
+    <section class="emulator-panel">
+      <div id="screen" class="screen"></div>
+      <div class="log-panel">
+        <h2>ログ</h2>
+        <pre id="log-output"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/v86@latest/dist/v86.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
