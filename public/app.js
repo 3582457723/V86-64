@@ -1,5 +1,6 @@
-const isoFileInput = document.getElementById("iso-file");
+const osSelect = document.getElementById("os-select");
 const memorySelect = document.getElementById("memory-size");
+const cpuSelect = document.getElementById("cpu-count");
 const x64Checkbox = document.getElementById("x64-mode");
 const startButton = document.getElementById("start");
 const resetButton = document.getElementById("reset");
@@ -9,7 +10,7 @@ const logOutput = document.getElementById("log-output");
 const screenContainer = document.getElementById("screen");
 
 let emulator = null;
-let loadedIso = null;
+let isoUrl = null;
 
 function log(message) {
   const now = new Date().toLocaleTimeString();
@@ -35,12 +36,12 @@ function resetEmulator() {
   updateStatus("停止しました", "#ff6f61");
   resetButton.disabled = true;
   stopButton.disabled = true;
-  startButton.disabled = !loadedIso;
+  startButton.disabled = !isoUrl;
 }
 
 function startEmulator() {
-  if (!loadedIso) {
-    updateStatus("ISOをアップロードしてください", "#ff6f61");
+  if (!isoUrl) {
+    updateStatus("起動するOSを選択してください", "#ff6f61");
     return;
   }
 
@@ -49,17 +50,20 @@ function startEmulator() {
   }
 
   const memorySize = Number(memorySelect.value) * 1024 * 1024;
+  const cpuCount = Number(cpuSelect.value);
   const x64Mode = x64Checkbox.checked;
 
   updateStatus("起動中…", "#5ad8ff");
-  log(`ISO サイズ: ${loadedIso.byteLength} bytes`);
+  log(`ISO URL: ${isoUrl}`);
   log(`メモリ: ${memorySelect.value} MB`);
+  log(`CPU: ${cpuCount} コア`);
   log(`x86-64 モード: ${x64Mode ? "有効" : "無効"}`);
 
   try {
     emulator = new V86Starter({
       wasm_path: "https://cdn.jsdelivr.net/npm/v86@latest/dist/v86.wasm",
       memory_size: memorySize,
+      cpu_count: cpuCount,
       screen_container: screenContainer,
       bios: "https://cdn.jsdelivr.net/npm/v86@latest/bios/seabios.bin",
       vga_bios: "https://cdn.jsdelivr.net/npm/v86@latest/bios/vgabios.bin",
@@ -96,25 +100,43 @@ function startEmulator() {
   }
 }
 
-isoFileInput.addEventListener("change", async (event) => {
-  const file = event.target.files[0];
-  if (!file) {
-    return;
-  }
+function populateIsoList() {
+  updateStatus("OS一覧を読み込み中…");
+  fetch("/isos")
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("OS一覧の取得に失敗しました");
+      }
+      return res.json();
+    })
+    .then((result) => {
+      if (!Array.isArray(result.images) || result.images.length === 0) {
+        osSelect.innerHTML = "<option>ISO ファイルが見つかりません</option>";
+        updateStatus("iso/ フォルダに ISO を配置してください", "#ff6f61");
+        startButton.disabled = true;
+        return;
+      }
 
-  updateStatus("ISO 読み込み中…");
-  log(`ISO 読み込み: ${file.name}`);
+      osSelect.innerHTML = result.images
+        .map((name) => `<option value="${encodeURIComponent(name)}">${name}</option>`)
+        .join("");
+      isoUrl = `/iso/${encodeURIComponent(result.images[0])}`;
+      osSelect.disabled = false;
+      startButton.disabled = false;
+      updateStatus("OSを選択して起動してください", "#8fffa5");
+    })
+    .catch((error) => {
+      osSelect.innerHTML = "<option>読み込みに失敗しました</option>";
+      updateStatus(`OS一覧の読み込みに失敗しました: ${error.message}`, "#ff6f61");
+      startButton.disabled = true;
+    });
+}
 
-  try {
-    loadedIso = await file.arrayBuffer();
-    updateStatus("ISO が読み込まれました。起動準備完了", "#8fffa5");
+osSelect.addEventListener("change", (event) => {
+  const selectedValue = event.target.value;
+  if (selectedValue) {
+    isoUrl = `/iso/${selectedValue}`;
     startButton.disabled = false;
-    log(`ISO 読み込み完了: ${file.name}`);
-  } catch (error) {
-    updateStatus("ISO の読み込みに失敗しました", "#ff6f61");
-    log(`読み込みエラー: ${error.message}`);
-    loadedIso = null;
-    startButton.disabled = true;
   }
 });
 
@@ -127,3 +149,5 @@ window.addEventListener("beforeunload", () => {
     emulator.stop();
   }
 });
+
+populateIsoList();

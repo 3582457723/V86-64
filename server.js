@@ -1,31 +1,22 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const multer = require("multer");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const upload = multer({ dest: path.join(__dirname, "uploads") });
+const isoDirectory = path.join(__dirname, "iso");
 
 app.use(express.static(path.join(__dirname, "docs")));
+app.use("/iso", express.static(isoDirectory));
 
-app.post("/upload", upload.single("iso"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "ISO file is required." });
-  }
-
-  const filename = req.file.filename;
-  const url = `/iso/${encodeURIComponent(filename)}`;
-  res.json({ url, name: req.file.originalname });
-});
-
-app.get("/iso/:filename", (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, "uploads", filename);
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).send("ISO not found.");
-  }
-  res.sendFile(filePath);
+app.get("/isos", (req, res) => {
+  fs.readdir(isoDirectory, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to read ISO directory." });
+    }
+    const isoFiles = files.filter((file) => file.toLowerCase().endsWith(".iso"));
+    res.json({ images: isoFiles });
+  });
 });
 
 app.get("/", (req, res) => {

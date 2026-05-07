@@ -15,8 +15,10 @@
 
     <section class="panel">
       <div class="control-row">
-        <label for="iso-file">ISO イメージを選択</label>
-        <input id="iso-file" type="file" accept=".iso" />
+        <label for="os-select">起動するOS</label>
+        <select id="os-select">
+          <option>読み込み中...</option>
+        </select>
       </div>
       <div class="control-row">
         <label for="memory-size">メモリサイズ</label>
@@ -25,6 +27,19 @@
           <option value="256">256 MB</option>
           <option value="512" selected>512 MB</option>
           <option value="1024">1024 MB</option>
+          <option value="2048">2048 MB</option>
+          <option value="4096">4096 MB</option>
+          <option value="8192">8192 MB</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <label for="cpu-count">CPU コア数</label>
+        <select id="cpu-count">
+          <option value="1" selected>1 コア</option>
+          <option value="2">2 コア</option>
+          <option value="3">3 コア</option>
+          <option value="4">4 コア</option>
+          <option value="5">5 コア</option>
         </select>
       </div>
       <div class="control-row">
