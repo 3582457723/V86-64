@@ -9,7 +9,7 @@ const logOutput = document.getElementById("log-output");
 const screenContainer = document.getElementById("screen");
 
 let emulator = null;
-let loadedIso = null;
+let isoUrl = null;
 
 function log(message) {
   const now = new Date().toLocaleTimeString();
@@ -35,11 +35,11 @@ function resetEmulator() {
   updateStatus("停止しました", "#ff6f61");
   resetButton.disabled = true;
   stopButton.disabled = true;
-  startButton.disabled = !loadedIso;
+  startButton.disabled = !isoUrl;
 }
 
 function startEmulator() {
-  if (!loadedIso) {
+  if (!isoUrl) {
     updateStatus("ISOをアップロードしてください", "#ff6f61");
     return;
   }
@@ -52,7 +52,7 @@ function startEmulator() {
   const x64Mode = x64Checkbox.checked;
 
   updateStatus("起動中…", "#5ad8ff");
-  log(`ISO サイズ: ${loadedIso.byteLength} bytes`);
+  log(`ISO URL: ${isoUrl}`);
   log(`メモリ: ${memorySelect.value} MB`);
   log(`x86-64 モード: ${x64Mode ? "有効" : "無効"}`);
 
@@ -67,7 +67,7 @@ function startEmulator() {
       boot_order: 0x132,
       x64: x64Mode,
       cdrom: {
-        buffer: loadedIso,
+        url: isoUrl,
       },
       filesystem: {
         baseurl: "https://cdn.jsdelivr.net/npm/v86@latest/",
@@ -102,18 +102,32 @@ isoFileInput.addEventListener("change", async (event) => {
     return;
   }
 
-  updateStatus("ISO 読み込み中…");
-  log(`ISO 読み込み: ${file.name}`);
+  updateStatus("ISO をサーバーにアップロード中…");
+  log(`ISO 選択: ${file.name}`);
 
   try {
-    loadedIso = await file.arrayBuffer();
-    updateStatus("ISO が読み込まれました。起動準備完了", "#8fffa5");
+    const formData = new FormData();
+    formData.append("iso", file);
+
+    const response = await fetch("/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || "ISO のアップロードに失敗しました");
+    }
+
+    const result = await response.json();
+    isoUrl = result.url;
+    updateStatus("ISO のアップロードが完了しました。起動準備完了", "#8fffa5");
     startButton.disabled = false;
-    log(`ISO 読み込み完了: ${file.name}`);
+    log(`ISO サーバーアップロード完了: ${result.name}`);
   } catch (error) {
-    updateStatus("ISO の読み込みに失敗しました", "#ff6f61");
-    log(`読み込みエラー: ${error.message}`);
-    loadedIso = null;
+    updateStatus("ISO のアップロードに失敗しました", "#ff6f61");
+    log(`アップロードエラー: ${error.message}`);
+    isoUrl = null;
     startButton.disabled = true;
   }
 });

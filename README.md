@@ -7,10 +7,13 @@ An upgraded version of the V86 project that allows web browsers to run on 16-bit
 ## GitHub Pages セットアップ
 このリポジトリは `docs/` フォルダを GitHub Pages の公開ソースとして使用します。
 
+ただし、ISO アップロードとサーバー側での ISO 提供機能は静的ホスティングだけでは動作しません。
+GitHub Pages で公開する場合は、別途 Express サーバーをホスティングする必要があります。
+
 1. リポジトリを GitHub にプッシュします。
 2. GitHub のリポジトリ設定で `Pages` セクションを開きます。
 3. ソースを `main` ブランチの `docs` フォルダに設定します。
-4. 公開 URL にアクセスして、アプリを利用できます。
+4. 公開 URL にアクセスして、静的なフロントエンドを確認します。
 
 > 例: `https://<GitHubユーザー名>.github.io/V86-64/`
 
